@@ -13,6 +13,7 @@ import org.springframework.stereotype.Service;
 import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
 @Slf4j
 @RequiredArgsConstructor
@@ -22,38 +23,54 @@ public class CustomerService {
     private final CustomerRepository customerRepository;
 
     public CustomerResponseDTO create(CustomerRequestDTO request) {
+        log.info("Creating customer - request: {}", request);
+
         Optional<CustomerEntity> customerFound = customerRepository.findByEmail(request.getEmail());
 
         if (customerFound.isPresent()) {
+            log.error("Error in creating user - e-mail already registered - request: {}", request);
             throw new InvalidEmailException(request.getEmail());
         }
 
         CustomerEntity customerToCreate = CustomerEntity.builder().customerRequest(request).build();
         CustomerEntity createdCustomer = customerRepository.save(customerToCreate);
 
-        return createCustomerResponse(createdCustomer);
+        CustomerResponseDTO response = createCustomerResponse(createdCustomer);
+
+        log.info("Customer created - response: {}", response);
+        return response;
     }
 
     public CustomerResponseDTO findById(Integer id) {
-        Optional<CustomerEntity> optional = getCustomerEntity(id);
+        log.info("Looking for customer - id: {}", id);
 
-        CustomerEntity customer = optional.get();
+        CustomerResponseDTO response = createCustomerResponse(getCustomerEntity(id));
 
-        return createCustomerResponse(customer);
+        log.info("Customer found - response: {}", response);
+        return response;
     }
 
     public List<CustomerResponseDTO> findAll() {
-        return customerRepository.findAll().stream()
+        log.info("Looking for all customers");
+
+        List<CustomerResponseDTO> response = customerRepository.findAll().stream()
                 .map(this::createCustomerResponse)
                 .toList();
+
+        String ids = response.stream().map(customer -> String.valueOf(customer.getId())).collect(Collectors.joining(","));
+        log.info("Customer list found - ids: {}", ids);
+        return response;
     }
 
     public CustomerResponseDTO update(Integer id, CustomerRequestDTO request) {
+        log.info("looking for user to update - id: {}, request: {}", id, request);
+
         getCustomerEntity(id);
 
         Optional<CustomerEntity> customerByEmail = customerRepository.findByEmail(request.getEmail());
 
         if (customerByEmail.isPresent() && !Objects.equals(customerByEmail.get().getId(), id)) {
+            log.error("Error when updating user - e-mail already registered - request: {}", request);
             throw new InvalidEmailException(request.getEmail());
         }
 
@@ -62,26 +79,34 @@ public class CustomerService {
 
         CustomerEntity updatedCustomer = customerRepository.save(customerToUpdate);
 
-        return createCustomerResponse(updatedCustomer);
+        CustomerResponseDTO response = createCustomerResponse(updatedCustomer);
+
+        log.info("Customer updated - response: {}", response);
+        return response;
     }
 
     public void delete(Integer id) {
+        log.info("Looking for customer to delete - id: {}", id);
+
         getCustomerEntity(id);
         customerRepository.deleteById(id);
+
+        log.info("Customer deleted - id: {}", id);
     }
 
     private CustomerResponseDTO createCustomerResponse(CustomerEntity createdCustomer) {
         return CustomerResponseDTO.builder().customerEntity(createdCustomer).build();
     }
 
-    private Optional<CustomerEntity> getCustomerEntity(Integer id) {
+    private CustomerEntity getCustomerEntity(Integer id) {
         Optional<CustomerEntity> customer = customerRepository.findById(id);
 
         if (customer.isEmpty()) {
+            log.error("Error - customer not found - id: {}", id);
             throw new CustomerNotFoundException(id);
         }
 
-        return customer;
+        return customer.get();
     }
 
 }
