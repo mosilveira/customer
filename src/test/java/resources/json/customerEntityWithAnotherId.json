@@ -1,0 +1,15 @@
+{
+  "id": 1001,
+  "name": "José Silva",
+  "age": 50,
+  "email": "jose.silva@email.com",
+  "address": {
+    "street": "Rua Alecrim",
+    "number": "50",
+    "district": "Horto",
+    "city": "Belo Horizonte",
+    "state": "Minas Gerais",
+    "zipCode": "31000001",
+    "country": "Brasil"
+  }
+}

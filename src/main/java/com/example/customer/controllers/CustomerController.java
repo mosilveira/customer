@@ -21,27 +21,27 @@ public class CustomerController {
     private final CustomerService customerService;
 
     @PostMapping(value = "/v1/customers")
-    public ResponseEntity<CustomerResponseDTO> create(@RequestBody @Valid CustomerRequestDTO request) {
+    public ResponseEntity<CustomerResponseDTO> createCustomer(@RequestBody @Valid CustomerRequestDTO request) {
         log.info("Request to create customer received - request: {}", request);
-        CustomerResponseDTO response = customerService.create(request);
+        CustomerResponseDTO response = customerService.createCustomer(request);
 
         log.info("Successfully created customer - response: {}", response);
         return ResponseEntity.status(HttpStatus.CREATED).body(response);
     }
 
     @GetMapping(value = "/v1/customers/{id}")
-    public ResponseEntity<CustomerResponseDTO> findById(@PathVariable("id") Integer id) {
+    public ResponseEntity<CustomerResponseDTO> findCustomerById(@PathVariable("id") Integer id) {
         log.info("Request to get a customer by id received - id: {}", id);
-        CustomerResponseDTO response = customerService.findById(id);
+        CustomerResponseDTO response = customerService.findCustomerById(id);
 
         log.info("Search performed successfully - response: {}", response);
         return ResponseEntity.ok(response);
     }
 
     @GetMapping(value = "/v1/customers")
-    public ResponseEntity<List<CustomerResponseDTO>> findAll() {
+    public ResponseEntity<List<CustomerResponseDTO>> findAllCustomers() {
         log.info("Request to get a list of customers received");
-        List<CustomerResponseDTO> response = customerService.findAll();
+        List<CustomerResponseDTO> response = customerService.findAllCustomers();
 
         String ids = response.stream().map(customer -> String.valueOf(customer.getId())).collect(Collectors.joining(","));
         log.info("Search performed successfully - ids: {}", ids);
@@ -49,18 +49,18 @@ public class CustomerController {
     }
 
     @PutMapping(value = "/v1/customers/{id}")
-    public ResponseEntity<CustomerResponseDTO> update(@PathVariable("id") Integer id, @RequestBody @Valid CustomerRequestDTO request) {
+    public ResponseEntity<CustomerResponseDTO> updateCustomer(@PathVariable("id") Integer id, @RequestBody @Valid CustomerRequestDTO request) {
         log.info("Request to update customer received - id: {}, request: {}", id, request);
-        CustomerResponseDTO response = customerService.update(id, request);
+        CustomerResponseDTO response = customerService.updateCustomer(id, request);
 
         log.info("Successfully updated customer - response: {}", response);
         return ResponseEntity.ok(response);
     }
 
     @DeleteMapping(value = "/v1/customers/{id}")
-    public ResponseEntity<Void> delete(@PathVariable("id") Integer id) {
+    public ResponseEntity<Void> deleteCustomer(@PathVariable("id") Integer id) {
         log.info("Request to remove customer received - id: {}", id);
-        customerService.delete(id);
+        customerService.deleteCustomer(id);
 
         log.info("Successfully removed customer - id: {}", id);
         return ResponseEntity.noContent().build();

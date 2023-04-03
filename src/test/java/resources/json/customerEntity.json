@@ -1,0 +1,15 @@
+{
+  "id": 1000,
+  "name": "José Silva",
+  "age": 32,
+  "email": "jose.silva@email.com",
+  "address": {
+    "street": "Rua do Amendoim",
+    "number": "1000",
+    "district": "Floresta",
+    "city": "Belo Horizonte",
+    "state": "Minas Gerais",
+    "zipCode": "31000000",
+    "country": "Brasil"
+  }
+}

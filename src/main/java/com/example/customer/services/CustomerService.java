@@ -22,7 +22,7 @@ public class CustomerService {
 
     private final CustomerRepository customerRepository;
 
-    public CustomerResponseDTO create(CustomerRequestDTO request) {
+    public CustomerResponseDTO createCustomer(CustomerRequestDTO request) {
         log.info("Creating customer - request: {}", request);
 
         Optional<CustomerEntity> customerFound = customerRepository.findByEmail(request.getEmail());
@@ -41,7 +41,7 @@ public class CustomerService {
         return response;
     }
 
-    public CustomerResponseDTO findById(Integer id) {
+    public CustomerResponseDTO findCustomerById(Integer id) {
         log.info("Looking for customer - id: {}", id);
 
         CustomerResponseDTO response = createCustomerResponse(getCustomerEntity(id));
@@ -50,7 +50,7 @@ public class CustomerService {
         return response;
     }
 
-    public List<CustomerResponseDTO> findAll() {
+    public List<CustomerResponseDTO> findAllCustomers() {
         log.info("Looking for all customers");
 
         List<CustomerResponseDTO> response = customerRepository.findAll().stream()
@@ -62,7 +62,7 @@ public class CustomerService {
         return response;
     }
 
-    public CustomerResponseDTO update(Integer id, CustomerRequestDTO request) {
+    public CustomerResponseDTO updateCustomer(Integer id, CustomerRequestDTO request) {
         log.info("looking for user to update - id: {}, request: {}", id, request);
 
         getCustomerEntity(id);
@@ -85,7 +85,7 @@ public class CustomerService {
         return response;
     }
 
-    public void delete(Integer id) {
+    public void deleteCustomer(Integer id) {
         log.info("Looking for customer to delete - id: {}", id);
 
         getCustomerEntity(id);
