@@ -2,6 +2,8 @@ package com.example.customer.controllers;
 
 import com.example.customer.dto.request.CustomerRequestDTO;
 import com.example.customer.dto.response.CustomerResponseDTO;
+import com.example.customer.exceptions.CustomerNotFoundException;
+import com.example.customer.exceptions.InvalidEmailException;
 import com.example.customer.services.CustomerService;
 import com.example.customer.utils.Utils;
 import org.junit.jupiter.api.Test;
@@ -54,6 +56,62 @@ class CustomerControllerTest {
     }
 
     @Test
+    void createCustomer_exception_methodArgumentNotValid() throws Exception {
+        CustomerRequestDTO request = new CustomerRequestDTO();
+
+        when(customerService.createCustomer(any())).thenReturn(CustomerResponseDTO.builder().build());
+
+        String input = Utils.mapToString(request);
+
+        MvcResult result = mvc
+                .perform(MockMvcRequestBuilders.post(BASE_URL)
+                        .accept(MediaType.APPLICATION_JSON)
+                        .content(input)
+                        .contentType(MediaType.APPLICATION_JSON))
+                .andReturn();
+
+        MockHttpServletResponse response = result.getResponse();
+
+        assertEquals(HttpStatus.BAD_REQUEST.value(), response.getStatus());
+    }
+
+    @Test
+    void createCustomer_exception_invalidEmailException() throws Exception {
+        CustomerRequestDTO request = Utils.readFromFile("/json/customerRequest.json", CustomerRequestDTO.class);
+
+        when(customerService.createCustomer(any())).thenThrow(new InvalidEmailException(request.getEmail()));
+
+        String input = Utils.mapToString(request);
+
+        MvcResult result = mvc
+                .perform(MockMvcRequestBuilders.post(BASE_URL)
+                        .accept(MediaType.APPLICATION_JSON)
+                        .content(input)
+                        .contentType(MediaType.APPLICATION_JSON))
+                .andReturn();
+
+        MockHttpServletResponse response = result.getResponse();
+
+        assertEquals(HttpStatus.BAD_REQUEST.value(), response.getStatus());
+    }
+
+    @Test
+    void createCustomer_exception_httpMessageNotReadable() throws Exception {
+        String input = "HttpMessageNotReadable";
+
+        MvcResult result = mvc
+                .perform(MockMvcRequestBuilders.post(BASE_URL)
+                        .accept(MediaType.APPLICATION_JSON)
+                        .content(input)
+                        .contentType(MediaType.APPLICATION_JSON))
+                .andReturn();
+
+        MockHttpServletResponse response = result.getResponse();
+
+        assertEquals(HttpStatus.BAD_REQUEST.value(), response.getStatus());
+    }
+
+    @Test
     void findCustomerById_success() throws Exception {
         when(customerService.findCustomerById(any())).thenReturn(CustomerResponseDTO.builder().build());
 
@@ -66,6 +124,21 @@ class CustomerControllerTest {
         MockHttpServletResponse response = result.getResponse();
 
         assertEquals(HttpStatus.OK.value(), response.getStatus());
+    }
+
+    @Test
+    void findCustomerById_exception_customerNotFoundException() throws Exception {
+        when(customerService.findCustomerById(any())).thenThrow(new CustomerNotFoundException(1));
+
+        MvcResult result = mvc
+                .perform(MockMvcRequestBuilders.get(ID_URL)
+                        .accept(MediaType.APPLICATION_JSON)
+                        .contentType(MediaType.APPLICATION_JSON))
+                .andReturn();
+
+        MockHttpServletResponse response = result.getResponse();
+
+        assertEquals(HttpStatus.NOT_FOUND.value(), response.getStatus());
     }
 
     @Test
